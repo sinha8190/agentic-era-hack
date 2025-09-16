@@ -1,0 +1,6 @@
+google-adk
+google-generativeai
+fastapi
+uvicorn
+google-cloud-logging
+opentelemetry-sdk

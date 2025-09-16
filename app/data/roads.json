@@ -1,0 +1,15 @@
+{
+  "roads": [
+    {"id": "A1", "name": "Main Street", "status": "open", "from": "City Center", "to": "Shelter 1"},
+    {"id": "B2", "name": "Elm Street", "status": "closed", "from": "Residential Area", "to": "City Center"},
+    {"id": "C3", "name": "Oak Avenue", "status": "open", "from": "Residential Area", "to": "Shelter 2"}
+  ],
+  "shelters": [
+    {"id": "Shelter 1", "name": "Community Hall", "capacity": 100},
+    {"id": "Shelter 2", "name": "High School Gym", "capacity": 200}
+  ],
+  "hazard_zones": [
+    "City Center",
+    "Residential Area"
+  ]
+}
