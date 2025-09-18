@@ -19,10 +19,10 @@ from fastapi import FastAPI
 from google.adk.cli.fast_api import get_fast_api_app
 from google.cloud import logging as google_cloud_logging
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider, export
+# from opentelemetry.sdk.trace import TracerProvider, export
 
 from app.utils.gcs import create_bucket_if_not_exists
-from app.utils.tracing import CloudTraceLoggingSpanExporter
+# from app.utils.tracing import CloudTraceLoggingSpanExporter
 from app.utils.typing import Feedback
 
 _, project_id = google.auth.default()
@@ -37,10 +37,10 @@ create_bucket_if_not_exists(
     bucket_name=bucket_name, project=project_id, location="us-central1"
 )
 
-provider = TracerProvider()
-processor = export.BatchSpanProcessor(CloudTraceLoggingSpanExporter())
-provider.add_span_processor(processor)
-trace.set_tracer_provider(provider)
+# provider = TracerProvider()
+# processor = export.BatchSpanProcessor(CloudTraceLoggingSpanExporter())
+# provider.add_span_processor(processor)
+# trace.set_tracer_provider(provider)
 
 AGENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # In-memory session configuration - no persistent storage

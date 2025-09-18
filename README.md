@@ -39,6 +39,12 @@ Install required packages and launch the local development environment:
 make install && make playground
 ```
 
+To run the agent and see the consolidated response, run the following command:
+
+```bash
+uv run python3 test_coordinator.py
+```
+
 ## Commands
 
 | Command              | Description                                                                                 |
@@ -58,6 +64,8 @@ For full command options and usage, refer to the [Makefile](Makefile).
 ## Usage
 
 This template follows a "bring your own agent" approach - you focus on your business logic, and the template handles everything else (UI, infrastructure, deployment, monitoring).
+
+The codebase includes logging to Google Cloud Logging and Cloud Trace. The infrastructure agent has a placeholder for the Google Roads API.
 
 1. **Prototype:** Build your Generative AI Agent using the intro notebooks in `notebooks/` for guidance. Use Vertex AI Evaluation to assess performance.
 2. **Integrate:** Import your agent into the app by editing `app/agent.py`.

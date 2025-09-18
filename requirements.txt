@@ -4,3 +4,6 @@ fastapi
 uvicorn
 google-cloud-logging
 opentelemetry-sdk
+streamlit
+pandas
+google-cloud-trace

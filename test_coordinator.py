@@ -14,6 +14,7 @@ async def main():
     runner = Runner(agent=root_agent, app_name="crisisiq", session_service=session_service)
     # The run_async method requires a user_id and a new_message.
     # Since our process is not started by a user message, we can pass an empty message.
+    # This will trigger the HazardAgent to read the hazard_status.json file.
     async for event in runner.run_async(
         user_id=user_id,
         session_id=session_id,

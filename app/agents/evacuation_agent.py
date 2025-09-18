@@ -10,11 +10,12 @@ class EvacuationAgent(BaseAgent):
             tools=[get_blocked_routes_tool],
         )
 
-    def _find_evacuation_routes(self):
+    async def _find_evacuation_routes(self):
         """
         Finds safe evacuation routes from hazard zones to shelters based on open roads and blocked routes.
         """
         blocked_routes = get_blocked_routes_tool()
+        self.log("Retrieved blocked routes", blocked_routes=blocked_routes)
         
         try:
             with open("app/data/roads.json") as f:
@@ -24,7 +25,9 @@ class EvacuationAgent(BaseAgent):
             return "Could not generate evacuation plan due to missing or invalid road data."
 
         open_roads = [road for road in roads_data.get("roads", []) if road.get("status") == "open" and road.get("name") not in blocked_routes]
+        self.log("Identified open roads", open_roads=open_roads)
         hazard_zones = roads_data.get("hazard_zones", [])
+        self.log("Identified hazard zones", hazard_zones=hazard_zones)
         
         evacuation_routes = []
         for zone in hazard_zones:
@@ -33,20 +36,21 @@ class EvacuationAgent(BaseAgent):
                     evacuation_routes.append(f"From {zone}, take {road['name']} to {road['to']}.")
         
         if not evacuation_routes:
+            self.log("No safe evacuation routes found.", severity="WARNING")
             return "No safe evacuation routes found."
             
         return "Evacuation Plan:\n" + "\n".join(evacuation_routes)
 
-    def handle_hazard(self, hazard_info):
-        self.log(f"Received hazard info: {hazard_info}")
+    async def handle_hazard(self, hazard_info):
+        self.log(f"Received hazard info", hazard_info=hazard_info)
         hazard_type = hazard_info.get("hazard")
 
-        if hazard_type not in ["Flood", "Storm"]:
-            self.log(f"Evacuation not typically required for {hazard_type}.")
+        if hazard_type.lower() not in ["flood", "storm"]:
+            self.log(f"Evacuation not typically required for {hazard_type}.", severity="WARNING")
             return f"Evacuation not activated for {hazard_type}."
 
-        evacuation_plan = self._find_evacuation_routes()
-        self.log(evacuation_plan)
+        evacuation_plan = await self._find_evacuation_routes()
+        self.log("Generated evacuation plan", evacuation_plan=evacuation_plan)
         return evacuation_plan
 
-evacuation_agent = EvacuationAgent()
+

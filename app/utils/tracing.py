@@ -24,6 +24,8 @@ from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SpanExportResult
 
 
+logger = google_cloud_logging.Client().logger(__name__)
+
 class CloudTraceLoggingSpanExporter(CloudTraceSpanExporter):
     """
     An extended version of CloudTraceSpanExporter that logs span data to Google Cloud Logging
@@ -55,7 +57,6 @@ class CloudTraceLoggingSpanExporter(CloudTraceSpanExporter):
         self.logging_client = logging_client or google_cloud_logging.Client(
             project=self.project_id
         )
-        self.logger = self.logging_client.logger(__name__)
         self.storage_client = storage_client or storage.Client(project=self.project_id)
         self.bucket_name = (
             bucket_name or f"{self.project_id}-crisisiq-logs-data"
@@ -86,7 +87,7 @@ class CloudTraceLoggingSpanExporter(CloudTraceSpanExporter):
                 print(span_dict)
 
             # Log the span data to Google Cloud Logging
-            self.logger.log_struct(
+            logger.log_struct(
                 span_dict,
                 labels={
                     "type": "agent_telemetry",

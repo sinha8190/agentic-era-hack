@@ -24,6 +24,7 @@ os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id)
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "True")
 
+from app.utils.tracing import logger
 
 class BaseAgent(Agent):
     def __init__(self, name, model="gemini-1.5-flash", instruction=None, tools=None):
@@ -33,9 +34,18 @@ class BaseAgent(Agent):
             instruction=instruction,
             tools=tools,
         )
+        self.log(f"Agent {self.name} initialized.")
 
-    def log(self, message: str, severity: str = "INFO"):
-        print(f"[{self.name}] [{severity}] {message}")
+    def log(self, message: str, severity: str = "INFO", **kwargs):
+        logger.log_struct(
+            {"message": message, **kwargs},
+            labels={
+                "type": "agent_telemetry",
+                "service_name": "crisisiq",
+                "agent_name": self.name,
+            },
+            severity=severity,
+        )
 
 def get_weather(query: str) -> str:
     """Simulates a web search. Use it get information on weather.
@@ -70,8 +80,4 @@ def get_current_time(query: str) -> str:
     return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
 
 
-root_agent = BaseAgent(
-    name="root_agent",
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
-)
+

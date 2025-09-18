@@ -1,17 +1,18 @@
 from app.agents.base import BaseAgent
 from app.agents.infrastructure_agent import get_blocked_routes_tool
 import google.generativeai as genai
+import json
 
 class LogisticsAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="LogisticsAgent",
-            instruction="This agent is responsible for managing logistics, including resource allocation and transport planning.",
+            instruction="This agent is responsible for managing logistics, including resource allocation, transport planning, and identifying safe shelters.",
             tools=[get_blocked_routes_tool],
         )
 
     async def handle_hazard(self, hazard_info):
-        self.log(f"Received hazard info: {hazard_info}")
+        self.log(f"Received hazard info", hazard_info=hazard_info)
         hazard_type = hazard_info.get("hazard")
 
         # 1. LLM-based resource triage
@@ -21,14 +22,25 @@ class LogisticsAgent(BaseAgent):
             model = genai.GenerativeModel(self.model)
             response = await model.generate_content_async(prompt)
             resource_list = response.text
+            self.log("Generated resource list", resource_list=resource_list)
         except Exception as e:
             self.log(f"Error generating resource list: {e}", severity="ERROR")
             resource_list = f"Could not determine resources for {hazard_type}."
 
         # 2. Get blocked routes from infrastructure agent
         blocked_routes = get_blocked_routes_tool()
+        self.log("Retrieved blocked routes", blocked_routes=blocked_routes)
 
-        # 3. Consolidate response
+        # 3. Identify safe shelters (hardcoded for prototype)
+        shelters = [
+            {"name": "Columbia High School", "lat": 40.035, "lon": -76.500},
+            {"name": "Columbia Middle School", "lat": 40.030, "lon": -76.505},
+            {"name": "Wrightsville Community Center", "lat": 40.025, "lon": -76.530}
+        ]
+        shelters_json = json.dumps(shelters)
+        self.log("Identified safe shelters", shelters=shelters)
+
+        # 4. Consolidate response
         consolidated_response = f"""
         Logistics Plan for {hazard_type}:
         
@@ -37,9 +49,11 @@ class LogisticsAgent(BaseAgent):
         
         Transport Plan:
         Planning transport of resources, avoiding the following blocked routes: {', '.join(blocked_routes) if blocked_routes else 'None'}.
+
+        SHELTER_LOCATIONS_JSON:
+        {shelters_json}
         """
 
-        self.log(consolidated_response)
+        self.log("Generated logistics plan", consolidated_response=consolidated_response)
         return consolidated_response
 
-logistics_agent = LogisticsAgent()

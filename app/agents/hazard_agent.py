@@ -16,6 +16,7 @@ class HazardReaderAgent(BaseAgent):
         try:
             with open("app/data/hazard_status.json") as f:
                 hazard_data = json.load(f)
+            self.log("Read hazard data from file", hazard_data=hazard_data)
             
             # Get the first hazard from the list
             first_hazard = hazard_data.get("hazards", [])[0]
@@ -32,6 +33,7 @@ class HazardReaderAgent(BaseAgent):
                 "magnitude": first_hazard.get("magnitude"),
                 "wind_speed": first_hazard.get("wind_speed"),
             }
+            self.log("Flattened hazard info", flattened_hazard_info=flattened_hazard_info)
 
             context.session.state["hazard_info"] = flattened_hazard_info
             yield Event(author=self.name, content=genai_types.Content(parts=[genai_types.Part(text="Hazard read successfully.")]))
@@ -48,5 +50,3 @@ class HazardAgent(LoopAgent):
             sub_agents=[HazardReaderAgent(name="HazardReaderAgent")],
             max_iterations=1, # The loop will be handled by the coordinator for now
         )
-
-hazard_agent = HazardAgent()
